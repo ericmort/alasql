@@ -39,7 +39,7 @@ describe.skip('Test 1119 - Trigger callback parameter', function () {
 		assert(
 			triggerReceivedCorrectData,
 			'BEFORE INSERT trigger function did not receive the expected data. Received: ' +
-			JSON.stringify(receivedValue)
+				JSON.stringify(receivedValue)
 		);
 
 		// Clean up the function to avoid side effects in other tests
@@ -64,7 +64,7 @@ describe.skip('Test 1119 - Trigger callback parameter', function () {
 		assert(
 			triggerReceivedCorrectData,
 			'AFTER INSERT trigger function did not receive the expected data. Received: ' +
-			JSON.stringify(receivedValue)
+				JSON.stringify(receivedValue)
 		);
 
 		delete alasql.fn.onchangeAfterInsert;
@@ -91,9 +91,9 @@ describe.skip('Test 1119 - Trigger callback parameter', function () {
 		assert(
 			triggerReceivedCorrectData,
 			'BEFORE UPDATE trigger function did not receive the expected data. Received old: ' +
-			JSON.stringify(receivedOldValue) +
-			', new: ' +
-			JSON.stringify(receivedNewValue)
+				JSON.stringify(receivedOldValue) +
+				', new: ' +
+				JSON.stringify(receivedNewValue)
 		);
 
 		delete alasql.fn.onchangeUpdate;
@@ -118,7 +118,7 @@ describe.skip('Test 1119 - Trigger callback parameter', function () {
 		assert(
 			triggerReceivedCorrectData,
 			'BEFORE DELETE trigger function did not receive the expected data. Received: ' +
-			JSON.stringify(receivedValue)
+				JSON.stringify(receivedValue)
 		);
 
 		delete alasql.fn.onchangeDelete;
@@ -144,7 +144,7 @@ describe.skip('Test 1119 - Trigger callback parameter', function () {
 		assert(
 			triggerReceivedCorrectData,
 			'INSTEAD OF INSERT trigger function did not receive the expected data. Received: ' +
-			JSON.stringify(receivedValue)
+				JSON.stringify(receivedValue)
 		);
 
 		// Verify that the data was NOT actually inserted because it was an INSTEAD OF trigger
