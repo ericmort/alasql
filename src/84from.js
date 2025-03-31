@@ -522,7 +522,7 @@ function XLSXLSX(X, filename, opts, cb, idx, query) {
 			}
 		},
 		function (err) {
-			if(query && query.cb) {
+			if (query && query.cb) {
 				query.cb(null, err);
 				return;
 			}
