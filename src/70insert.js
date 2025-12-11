@@ -23,6 +23,10 @@ yy.Insert.prototype.toString = function () {
 		s += ' VALUES ' + values.join(',');
 	}
 	if (this.select) s += ' ' + this.select.toString();
+	if (this.setcolumns) {
+		s += ' SET ';
+		s += this.setcolumns.map(col => col.toString()).join(', ');
+	}
 	if (this.output) {
 		s += ' OUTPUT ';
 		s += this.output.columns.map(col => col.toString()).join(', ');
@@ -331,6 +335,31 @@ yy.Insert.prototype.compile = function (databaseid) {
 	} else if (this.default) {
 		var insertfns = "db.tables['" + tableid + "'].data.push({" + table.defaultfns + '});return 1;';
 		var insertfn = new Function('db,params,alasql', insertfns);
+	} else if (this.setcolumns) {
+		// INSERT INTO table SET column = value - convert to VALUES equivalent
+		// Build column list and value expression list from SET columns
+		var columns = [];
+		var valueExprs = [];
+		this.setcolumns.forEach(function (setcol) {
+			columns.push(setcol.column);
+			valueExprs.push(setcol.expression);
+		});
+
+		// Temporarily transform to use VALUES path
+		var originalColumns = this.columns;
+		var originalValues = this.values;
+		this.columns = columns;
+		this.values = [valueExprs];
+
+		try {
+			// Reuse VALUES compilation logic by recursively calling compile
+			var compiledFn = yy.Insert.prototype.compile.call(this, databaseid);
+			return compiledFn;
+		} finally {
+			// Always restore original state
+			this.columns = originalColumns;
+			this.values = originalValues;
+		}
 	} else {
 		throw new Error('Wrong INSERT parameters');
 	}
