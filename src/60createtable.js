@@ -306,11 +306,16 @@ yy.CreateTable.prototype.execute = function (databaseid, params, cb) {
 		);
 	}
 
-	table.insert = function (r, orreplace) {
+	table.insert = function (r, orreplace, ignore) {
 		var oldinserted = alasql.inserted;
 		alasql.inserted = [r];
 
 		var table = this;
+
+		// orreplace and ignore are mutually exclusive - orreplace takes precedence
+		if (orreplace && ignore) {
+			ignore = false;
+		}
 
 		var toreplace = false; // For INSERT OR REPLACE
 
@@ -386,21 +391,31 @@ yy.CreateTable.prototype.execute = function (databaseid, params, cb) {
 				//console.log(pk,addr,pk.onrightfn({ono:1}));
 				//console.log(r, pk.onrightfn(r), pk.onrightfns);
 				if (orreplace) toreplace = table.uniqs[pk.hh][addr];
-				else
+				else if (ignore) {
+					alasql.inserted = oldinserted;
+					return false; // Silently skip insertion and indicate it was skipped
+				} else
 					throw new Error('Cannot insert record, because it already exists in primary key index');
 			}
 			//			table.uniqs[pk.hh][addr]=r;
 		}
 
 		if (table.uk && table.uk.length) {
-			table.uk.forEach(function (uk) {
+			for (var i = 0; i < table.uk.length; i++) {
+				var uk = table.uk[i];
 				var ukaddr = uk.onrightfn(r);
 				if (typeof table.uniqs[uk.hh][ukaddr] !== 'undefined') {
-					if (orreplace) toreplace = table.uniqs[uk.hh][ukaddr];
-					else throw new Error('Cannot insert record, because it already exists in unique index');
+					if (orreplace) {
+						toreplace = table.uniqs[uk.hh][ukaddr];
+					} else if (ignore) {
+						alasql.inserted = oldinserted;
+						return false; // Silently skip insertion and indicate it was skipped
+					} else {
+						throw new Error('Cannot insert record, because it already exists in unique index');
+					}
 				}
 				//				table.uniqs[uk.hh][ukaddr]=r;
-			});
+			}
 		}
 
 		if (toreplace) {
