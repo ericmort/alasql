@@ -2485,6 +2485,8 @@ JsonValue
 JsonPrimitiveValue
 	: NumValue
 		{ $$ = +$1.value; }
+	| MINUS NumValue
+		{ $$ = -$2.value; }
 	| StringValue
 		{ $$ = ""+$1.value; }
 	| LogicValue
@@ -2534,6 +2536,12 @@ JsonProperty
 		{ $$ = {}; $$[$1] = $3; }
 	| Literal COLON JsonValue
 		{ $$ = {}; $$[$1] = $3; }
+	| STRING COLONDASH NumValue
+		{ $$ = {}; $$[$1.substr(1,$1.length-2)] = -$3.value; }
+	| NUMBER COLONDASH NumValue
+		{ $$ = {}; $$[$1] = -$3.value; }
+	| Literal COLONDASH NumValue
+		{ $$ = {}; $$[$1] = -$3.value; }
 /*	| STRING COLON ParamValue
 		{ $$ = {}; $$[$1.substr(1,$1.length-2)] = $3; }
 	| NUMBER COLON ParamValue
