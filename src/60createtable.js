@@ -332,10 +332,8 @@ yy.CreateTable.prototype.execute = function (databaseid, params, cb) {
 		for (var tr in table.beforeinsert) {
 			var trigger = table.beforeinsert[tr];
 			if (trigger) {
-				if (trigger.funcid) {
-					if (alasql.fn[trigger.funcid](r) === false) prevent = prevent || true;
-				} else if (trigger.statement) {
-					if (trigger.statement.execute(databaseid) === false) prevent = prevent || true;
+				if (alasql.executeTrigger(trigger, databaseid, r) === false) {
+					prevent = prevent || true;
 				}
 			}
 		}
@@ -347,11 +345,7 @@ yy.CreateTable.prototype.execute = function (databaseid, params, cb) {
 			escape = true;
 			trigger = table.insteadofinsert[tr];
 			if (trigger) {
-				if (trigger.funcid) {
-					alasql.fn[trigger.funcid](r);
-				} else if (trigger.statement) {
-					trigger.statement.execute(databaseid);
-				}
+				alasql.executeTrigger(trigger, databaseid, r);
 			}
 		}
 		if (escape) return;
@@ -488,11 +482,7 @@ yy.CreateTable.prototype.execute = function (databaseid, params, cb) {
 		for (var tr in table.afterinsert) {
 			var trigger = table.afterinsert[tr];
 			if (trigger) {
-				if (trigger.funcid) {
-					alasql.fn[trigger.funcid](r);
-				} else if (trigger.statement) {
-					trigger.statement.execute(databaseid);
-				}
+				alasql.executeTrigger(trigger, databaseid, r);
 			}
 		}
 		alasql.inserted = oldinserted;
@@ -507,10 +497,8 @@ yy.CreateTable.prototype.execute = function (databaseid, params, cb) {
 		for (var tr in table.beforedelete) {
 			var trigger = table.beforedelete[tr];
 			if (trigger) {
-				if (trigger.funcid) {
-					if (alasql.fn[trigger.funcid](r) === false) prevent = prevent || true;
-				} else if (trigger.statement) {
-					if (trigger.statement.execute(databaseid) === false) prevent = prevent || true;
+				if (alasql.executeTrigger(trigger, databaseid, r) === false) {
+					prevent = prevent || true;
 				}
 			}
 		}
@@ -522,11 +510,7 @@ yy.CreateTable.prototype.execute = function (databaseid, params, cb) {
 			escape = true;
 			var trigger = table.insteadofdelete[tr];
 			if (trigger) {
-				if (trigger.funcid) {
-					alasql.fn[trigger.funcid](r);
-				} else if (trigger.statement) {
-					trigger.statement.execute(databaseid);
-				}
+				alasql.executeTrigger(trigger, databaseid, r);
 			}
 		}
 		if (escape) return;
@@ -613,10 +597,8 @@ yy.CreateTable.prototype.execute = function (databaseid, params, cb) {
 		for (var tr in table.beforeupdate) {
 			var trigger = table.beforeupdate[tr];
 			if (trigger) {
-				if (trigger.funcid) {
-					if (alasql.fn[trigger.funcid](this.data[i], r) === false) prevent = prevent || true;
-				} else if (trigger.statement) {
-					if (trigger.statement.execute(databaseid) === false) prevent = prevent || true;
+				if (alasql.executeTrigger(trigger, databaseid, this.data[i], r) === false) {
+					prevent = prevent || true;
 				}
 			}
 		}
@@ -628,11 +610,7 @@ yy.CreateTable.prototype.execute = function (databaseid, params, cb) {
 			escape = true;
 			var trigger = table.insteadofupdate[tr];
 			if (trigger) {
-				if (trigger.funcid) {
-					alasql.fn[trigger.funcid](this.data[i], r);
-				} else if (trigger.statement) {
-					trigger.statement.execute(databaseid);
-				}
+				alasql.executeTrigger(trigger, databaseid, this.data[i], r);
 			}
 		}
 		if (escape) return;
@@ -685,11 +663,7 @@ yy.CreateTable.prototype.execute = function (databaseid, params, cb) {
 		for (var tr in table.afterupdate) {
 			var trigger = table.afterupdate[tr];
 			if (trigger) {
-				if (trigger.funcid) {
-					alasql.fn[trigger.funcid](this.data[i], r);
-				} else if (trigger.statement) {
-					trigger.statement.execute(databaseid);
-				}
+				alasql.executeTrigger(trigger, databaseid, this.data[i], r);
 			}
 		}
 	};
