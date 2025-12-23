@@ -834,17 +834,23 @@
 		}
 
 		findAggregator(query) {
-			const colas = escapeq(this.toString()) + ':' + query.selectGroup.length;
+			// Check if an identical aggregate already exists in selectGroup
+			let existingAggr = query.selectGroup.find(agg => agg.toString() === this.toString());
 
-			if (!this.nick) {
-				this.nick = colas;
-
-				if (!query.removeKeys.includes(colas)) {
-					query.removeKeys.push(colas);
+			if (existingAggr) {
+				// Reuse the existing aggregate's nick to share the same accumulator
+				this.aggrNick = existingAggr.nick;
+			} else {
+				// New aggregate - assign nick and add to selectGroup
+				if (!this.nick) {
+					this.nick = escapeq(this.toString()) + ':' + query.selectGroup.length;
+					if (!query.removeKeys.includes(this.nick)) {
+						query.removeKeys.push(this.nick);
+					}
 				}
+				this.aggrNick = this.nick;
+				query.selectGroup.push(this);
 			}
-
-			query.selectGroup.push(this);
 		}
 
 		toType() {
@@ -864,7 +870,8 @@
 		}
 
 		toJS() {
-			var colas = this.nick;
+			// Use aggrNick for duplicate aggregates to share the same accumulator, otherwise use the unique nick
+			var colas = this.aggrNick || this.nick;
 			if (colas === undefined) {
 				colas = escapeq(this.toString());
 			}
